@@ -15,7 +15,7 @@ object ChannelManager {
         val phoneChannels: List[Channel] = Channels.filter(p => {
             !p.phoneNumber.isEmpty && PhoneNumbers.contains(PhoneNumber(p.phoneNumber.get))
         })
-        var phone: Option[String] = None: Option[String]
+        var phone: Option[String] = None
         if (!phoneChannels.isEmpty){
             phone = Some(phoneChannels.groupBy(_.phoneNumber.get).reduceLeft((l,r) => { if (r._2.size < l._2.size) r else l})._1)
         }
@@ -38,6 +38,7 @@ object ChannelManager {
         count
     }
 
+    @annotation.tailrec
     def assignPhoneToChannel(Channels: List[Channel],PhoneNumbers: List[PhoneNumber], Followings: List[Following],CurrentChannel: Channel): Option[String] = {
 
         //First attempt is to use a number which is already being used in some channel
@@ -63,11 +64,12 @@ object ChannelManager {
         CurrentChannel.phoneNumber = phoneNumber
         phoneNumber match {
             case None   =>
-                assignPhoneToChannel(Channels,remainingNumbers,Followings,CurrentChannel)
             case Some(number) =>
+                phoneNumber
                 //Phone number is assigned...Do Nothing
         }
-        phoneNumber
+
+        assignPhoneToChannel(Channels,remainingNumbers,Followings,CurrentChannel)
     }
 
 
